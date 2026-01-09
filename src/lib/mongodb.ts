@@ -1,3 +1,4 @@
+// lib/mongodb.ts - JUST ADD NAMED EXPORT
 import mongoose from 'mongoose';
 
 const MONGODB_URI = process.env.MONGODB_URI!;
@@ -6,14 +7,13 @@ if (!MONGODB_URI) {
   throw new Error('Please define MONGODB_URI in .env.local');
 }
 
-// ✅ FIXED: TypeScript global cache
+// ✅ Your existing interface & cache - PERFECT
 interface MongooseCache {
   conn: typeof mongoose | null;
   promise: Promise<typeof mongoose> | null;
 }
 
 declare global {
-  // eslint-disable-next-line no-var
   var mongoose: MongooseCache | undefined;
 }
 
@@ -48,4 +48,6 @@ async function connectDB() {
   return cached.conn!;
 }
 
+// ✅ ADD THIS LINE ONLY:
+export { connectDB as connectToDatabase };
 export default connectDB;
