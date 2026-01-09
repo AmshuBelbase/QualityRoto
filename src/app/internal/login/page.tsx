@@ -163,13 +163,17 @@ export default function StaffLogin() {
                 />
                 <span className="text-sm font-medium text-gray-700">Remember me</span>
               </label>
+              
+               {/* Forgot Password Link - NEW */}
+            <div className="text-center">
               <button 
-                type="button"
-                className="text-sm text-[#1B5FA6] hover:text-[#F15A29] font-semibold transition-colors"
-                onClick={() => window.open('mailto:qualityroto2015@gmail.com?subject=Staff Portal Access Help', '_blank')}
+                onClick={() => window.location.href = '/internal/forgot-password'}
+                className="inline-flex items-center gap-2 text-[#1B5FA6] hover:text-[#F15A29] font-semibold transition-all hover:underline text-sm bg-white/80 px-4 py-2 rounded-xl hover:bg-orange-50"
               >
-                Need Help?
+                <span>🔑</span>
+                Forgot Password?
               </button>
+            </div>
             </div>
 
             {/* Submit Button */}
@@ -189,27 +193,39 @@ export default function StaffLogin() {
                 'Log In to Portal'
               )}
             </motion.button>
+
           </form>
+            
+            <div className="text-center">
+              <button 
+                type="button"
+                className="text-sm text-[#1B5FA6] hover:text-[#F15A29] font-semibold transition-colors"
+                onClick={() => window.open('mailto:qualityroto2015@gmail.com?subject=Staff Portal Access Help', '_blank')}
+              >
+                Need Help? Email Us
+              </button>
+            </div>
+          
+          {/* Create Account Link */}
+          <div className="text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <button 
+                  onClick={() => window.location.href = '/internal/signup'}
+                  className="text-[#1B5FA6] hover:text-[#F15A29] font-semibold transition-all hover:underline"
+                >
+                  Create an Account
+                </button>
+              </p>
+          </div>
 
           {/* Staff Notice */}
           <div className="pt-6 border-t-2 border-gray-100 text-center">
             <p className="text-sm text-gray-500 mb-2">🔒 Staff Access Only</p>
-            {/* <p className="text-xs text-gray-400">
-              Contact IT if you need access • qualityroto2015@gmail.com
-            </p> */}
           </div>
-          {/* Login Link */}
-          <div className="text-center mt-6">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
-              <button 
-                onClick={() => window.location.href = '/internal/signup'}
-                className="text-[#1B5FA6] hover:text-[#F15A29] font-semibold transition-colors"
-              >
-                Create an Account instead
-              </button>
-            </p>
-          </div>
+
+          
+        
         </div>
       </motion.div>
     </div>

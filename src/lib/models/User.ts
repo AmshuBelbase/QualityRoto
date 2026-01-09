@@ -31,6 +31,8 @@ const userSchema: Schema = new mongoose.Schema(
     password: { type: String, required: true },
     role: { type: String, enum: ['admin', 'staff', 'pending'], default: 'pending' },
     isActive: { type: Boolean, default: true },
+    resetOTP: { type: String, default: undefined },
+    resetOTPExpiry: { type: Date, default: undefined },
     permissions: {
       newOrders: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
       sa: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
