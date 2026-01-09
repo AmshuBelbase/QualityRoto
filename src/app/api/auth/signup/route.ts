@@ -41,13 +41,37 @@ export async function POST(request: NextRequest) {
 
     // Admin check
     const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(email => email.trim().toLowerCase());
-    const role = adminEmails.includes(email.toLowerCase()) ? 'admin' : 'staff';
+    const isAdmin  = adminEmails.includes(email.toLowerCase());
 
     // Update user with real data
     pendingUser.fullName = fullName;
     pendingUser.phone = fullPhone;
     pendingUser.password = await bcrypt.hash(password, 12);
-    pendingUser.role = role;
+    if (isAdmin) {
+      // ✅ ADMIN: Full read_write for YOUR sections
+      pendingUser.role = 'admin';
+      pendingUser.permissions = {
+        newOrders: 'read_write',
+        sa: 'read_write',
+        sb: 'read_write',
+        sc: 'read_write',
+        packaging: 'read_write',
+        dispatched: 'read_write',
+        complaints: 'read_write',
+      };
+    } else {
+      // ✅ STAFF: Limited read_only for YOUR sections
+      pendingUser.role = 'staff';
+      pendingUser.permissions = {
+        newOrders: 'no_access',
+        sa: 'no_access',
+        sb: 'no_access',
+        sc: 'no_access',
+        packaging: 'no_access',
+        dispatched: 'no_access',
+        complaints: 'no_access',
+      };
+    }
     pendingUser.isActive = true;
 
     await pendingUser.save();

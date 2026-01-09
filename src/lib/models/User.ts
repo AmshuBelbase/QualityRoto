@@ -29,7 +29,7 @@ const userSchema: Schema = new mongoose.Schema(
     email: { type: String, required: true, unique: true },
     phone: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    role: { type: String, enum: ['admin', 'staff'], default: 'staff' },
+    role: { type: String, enum: ['admin', 'staff', 'pending'], default: 'pending' },
     isActive: { type: Boolean, default: true },
     permissions: {
       newOrders: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
