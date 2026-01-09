@@ -112,7 +112,7 @@ export default function LandingPage() {
           />
         </motion.div>
         <div className="flex gap-3"> {/* ✅ Reduced gap when scrolled */}
-          <Link href="/login">
+          {/*<Link href="/login">
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
@@ -124,7 +124,7 @@ export default function LandingPage() {
             >
               Staff Portal
             </motion.button>
-          </Link>
+          </Link>*/}
           
           <motion.button
             whileHover={{ scale: 1.05 }}
@@ -571,15 +571,15 @@ export default function LandingPage() {
             <p className="text-xl mb-8 opacity-90">
               Join hundreds of satisfied customers who trust our packaging solutions
             </p>
-            <Link href="/signup">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="px-10 py-4 bg-white text-[#1B5FA6] rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all"
-              >
-                Create Your Account
-              </motion.button>
-            </Link>
+            
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={scrollToGetInTouch}
+              className="px-10 py-4 bg-white text-[#1B5FA6] rounded-xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all"
+            >
+              Give Us a Try
+            </motion.button> 
           </motion.div>
         </div>
       </section>
