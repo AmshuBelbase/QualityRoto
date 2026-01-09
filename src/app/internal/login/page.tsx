@@ -30,7 +30,7 @@ export default function StaffLogin() {
         // Store token in localStorage/cookies
         localStorage.setItem('token', result.token);
         alert('Login successful! Redirecting...');
-        window.location.href = '/dashboard'; // Create this later
+        window.location.href = '/internal/dashboard'; // Create this later
       } else {
         alert(result.error);
       }

@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { getToken } from '@/lib/jwt';
 
 type Permission = 'read_only' | 'read_write' | 'no_access';
 type Permissions = {
@@ -24,35 +25,106 @@ type User = {
 };
 
 export default function AdminUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+    const [users, setUsers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [editingUser, setEditingUser] = useState<User | null>(null);
 
-  useEffect(() => {
-    fetchUsers();
-  }, []);
+    // useEffect(() => {
+    //     fetchUsers();
+    // }, []);
 
-  const fetchUsers = async () => {
-    const res = await fetch('/api/admin/users');
+    // Add to your component
+    useEffect(() => {
+        const token = getToken();
+        if (!token) {
+            window.location.href = '/internal/login';
+            return;
+        }
+        
+        // Quick role check
+        try {
+            const decoded = JSON.parse(atob(token.split('.')[1]));
+            if (decoded.role !== 'admin') {
+                const currentPath = window.location.pathname;
+                if (currentPath === '/internal/admin/users') {
+                    // Direct URL access → Go to dashboard
+                    window.location.href = '/internal/dashboard';
+                } else {
+                    // Already on permitted page → Stay here
+                    alert('Admin access required for user management');
+                }
+            } else {
+                fetchUsers();
+            }
+        } catch {
+            window.location.href = '/internal/login';
+        }
+    }, []);
+
+    // Update fetchUsers
+    const fetchUsers = async () => {
+    const token = getToken();
+    if (!token) {
+        alert('Please login first');
+        window.location.href = '/internal/login';
+        return;
+    }
+
+    const res = await fetch('/api/admin/users', {
+        headers: {
+        'Authorization': `Bearer ${token}`
+        }
+    });
+
+    if (res.status === 401) {
+        localStorage.removeItem('token');
+        alert('Session expired. Please login again.');
+        window.location.href = '/internal/login';
+        return;
+    }
+
+    if (res.status === 403) {
+        alert('Admin access required');
+        return;
+    }
+
     if (res.ok) {
-      const data = await res.json();
-      setUsers(data);
+        const data = await res.json();
+        setUsers(data);
     }
     setLoading(false);
-  };
+    };
 
-  const updatePermissions = async (userId: string, permissions: Permissions) => {
-    const res = await fetch('/api/admin/users', {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ userId, permissions }),
-    });
-    
-    if (res.ok) {
-      fetchUsers();
-      setEditingUser(null);
+    // Update updatePermissions
+    const updatePermissions = async (userId: string, permissions: Permissions) => {
+    const token = getToken();
+    if (!token) {
+        alert('Please login first');
+        window.location.href = '/internal/login';
+        return;
     }
-  };
+
+    const res = await fetch('/api/admin/users', {
+        method: 'PUT',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ userId, permissions }),
+    });
+
+    if (res.status === 401 || res.status === 403) {
+        localStorage.removeItem('token');
+        alert('Session expired or insufficient permissions');
+        window.location.href = '/internal/login';
+        return;
+    }
+
+    if (res.ok) {
+        fetchUsers();
+        setEditingUser(null);
+    }
+    };
 
   if (loading) return <div className="flex items-center justify-center min-h-screen">Loading users...</div>;
 
