@@ -17,9 +17,28 @@ export default function StaffLogin() {
 
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
-    // TODO: Implement authentication logic
-    console.log('Login data:', data);
-    setTimeout(() => setIsLoading(false), 2000);
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      
+      const result = await res.json();
+      
+      if (result.success) {
+        // Store token in localStorage/cookies
+        localStorage.setItem('token', result.token);
+        alert('Login successful! Redirecting...');
+        window.location.href = '/dashboard'; // Create this later
+      } else {
+        alert(result.error);
+      }
+    } catch (error) {
+      alert('Login failed');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
