@@ -19,8 +19,16 @@ type SignupFormData = {
 export default function StaffSignup() {
   const [step, setStep] = useState(1); 
   const [isLoading, setIsLoading] = useState(false);
-  const [userEmail, setUserEmail] = useState('');
-  const [formData, setFormData] = useState<SignupFormData>({});
+  const [userEmail, setUserEmail] = useState(''); 
+  const [formData, setFormData] = useState<SignupFormData>({
+  fullName: '',
+  email: '',
+  phoneCountryCode: '+977',
+  phoneNumber: '',
+  password: '',
+  confirmPassword: '',
+  agreeToTerms: false
+});
   
   // ✅ FIXED: Added watch to destructuring
   const { register, handleSubmit, watch, formState: { errors }, reset } = useForm<SignupFormData>();
@@ -85,7 +93,15 @@ export default function StaffSignup() {
   const goBack = () => {
     setStep(1);
     setUserEmail('');
-    setFormData({});
+    setFormData({
+      fullName: '',
+      email: '',
+      phoneCountryCode: '+977',
+      phoneNumber: '',
+      password: '',
+      confirmPassword: '',
+      agreeToTerms: false
+    });
     reset();
   };
 
@@ -250,7 +266,7 @@ export default function StaffSignup() {
                   {...register('agreeToTerms', { required: 'You must agree to terms' })}
                 />
                 <label className="text-sm text-gray-700 leading-relaxed cursor-pointer flex-1">
-                  I agree to <a href="https://www.qualityroto.com/terms" target="_blank" className="text-[#1B5FA6] hover:text-[#F15A29] font-semibold underline">Terms</a> and <a href="https://www.qualityroto.com/privacy" target="_blank" className="text-[#1B5FA6] hover:text-[#F15A29] font-semibold underline">Privacy Policy</a>
+                  I agree to <a href="https://www.qualityroto.com/terms" target="_blank" className="text-[#1B5FA6] hover:text-[#F15A29] font-semibold underline" rel="noopener noreferrer">Terms</a> and <a rel="noopener noreferrer" href="https://www.qualityroto.com/privacy" target="_blank" className="text-[#1B5FA6] hover:text-[#F15A29] font-semibold underline">Privacy Policy</a>
                 </label>
               </div>
               {errors.agreeToTerms && (
