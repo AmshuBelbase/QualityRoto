@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react'; 
 import { motion } from 'framer-motion';
 import { useForm } from 'react-hook-form';
 import Image from 'next/image';
@@ -14,7 +14,13 @@ type LoginFormData = {
 export default function StaffLogin() {
   const [isLoading, setIsLoading] = useState(false);
   const { register, handleSubmit, formState: { errors } } = useForm<LoginFormData>();
-
+  useEffect(() => {
+    let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (token) {
+      window.location.href = '/internal/dashboard';
+      return;
+    }
+  }, []);
   const onSubmit = async (data: LoginFormData) => {
     setIsLoading(true);
     try {
