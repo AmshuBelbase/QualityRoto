@@ -129,7 +129,7 @@ export default function StaffSignup() {
                 <motion.input
                   whileFocus={{ scale: 1.02 }}
                   type="text"
-                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg"
+                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg text-black"
                   placeholder="Enter full name"
                   {...register('fullName', { 
                     required: 'Full name required',
@@ -148,7 +148,7 @@ export default function StaffSignup() {
                 <motion.input
                   whileFocus={{ scale: 1.02 }}
                   type="email"
-                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg"
+                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg text-black"
                   placeholder="your@email.com"
                   {...register('email', { 
                     required: 'Email required',
@@ -162,42 +162,55 @@ export default function StaffSignup() {
                 )}
               </div>
 
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
-                <div className="flex gap-2">
-                  <select
-                    className="w-28 px-4 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] bg-white text-lg"
-                    {...register('phoneCountryCode', { required: true })}
-                    defaultValue="+977"
-                  >
-                    <option value="+977">+977</option>
-                    <option value="+91">+91</option>
-                    <option value="+1">+1</option>
-                  </select>
-                  <motion.input
-                    whileFocus={{ scale: 1.02 }}
-                    type="tel"
-                    className="flex-1 px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] bg-white text-lg"
-                    placeholder="9857011801"
-                    {...register('phoneNumber', { 
-                      required: 'Phone required',
-                      pattern: { value: /^\d{10}$/, message: '10-digit number' }
-                    })}
-                  />
-                </div>
-                {(errors.phoneCountryCode || errors.phoneNumber) && (
-                  <p className="text-red-500 text-sm mt-2 flex items-center gap-1">
-                    <span>⚠️</span> {errors.phoneCountryCode?.message || errors.phoneNumber?.message}
-                  </p>
-                )}
-              </div>
+             <div>
+  <label className="block text-sm font-semibold text-gray-700 mb-2">Phone Number *</label>
+  <div className="flex gap-2">
+    {/* Fixed width country code */}
+    <motion.select
+      whileFocus={{ scale: 1.02 }}
+      className="w-24 px-4 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-white text-lg text-black shadow-sm"
+      {...register('phoneCountryCode', { required: 'Country code required' })}
+      defaultValue="+977"
+    >
+      <option value="+977">+977</option>
+      <option value="+91">+91</option>
+      <option value="+1">+1</option>
+    </motion.select>
+    
+    {/* Fixed max-width phone input */}
+    <motion.input
+      whileFocus={{ scale: 1.02 }}
+      type="tel"
+      className="flex-1 max-w-[280px] min-w-0 px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-white text-lg text-black shadow-sm"
+      placeholder="10 digit Phone Number"
+      {...register('phoneNumber', { 
+        required: 'Phone number required',
+        pattern: { 
+          value: /^\d{10}$/, 
+          message: 'Enter 10-digit number only' 
+        }
+      })}
+    />
+  </div>
+  {(errors.phoneCountryCode || errors.phoneNumber) && (
+    <motion.p 
+      initial={{ opacity: 0, x: -10 }}
+      animate={{ opacity: 1, x: 0 }}
+      className="text-red-500 text-sm mt-2 flex items-center gap-1"
+    >
+      <span className="text-lg">⚠️</span> 
+      {errors.phoneCountryCode?.message || errors.phoneNumber?.message}
+    </motion.p>
+  )}
+</div>
+
 
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Password *</label>
                 <motion.input
                   whileFocus={{ scale: 1.02 }}
                   type="password"
-                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg"
+                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg text-black"
                   placeholder="Minimum 8 characters"
                   {...register('password', { 
                     required: 'Password required',
@@ -216,7 +229,7 @@ export default function StaffSignup() {
                 <motion.input
                   whileFocus={{ scale: 1.02 }}
                   type="password"
-                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg"
+                  className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all text-lg text-black"
                   placeholder="Repeat password"
                   {...register('confirmPassword', { 
                     required: 'Confirm password',
@@ -293,8 +306,8 @@ export default function StaffSignup() {
                         message: 'Enter exactly 6 digits'
                       }
                     })}
-                    className="w-full text-center text-3xl font-bold tracking-widest py-8 px-6 rounded-3xl border-4 border-gray-200 focus:border-[#1B5FA6] focus:ring-8 focus:ring-[#1B5FA6]/20 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-2xl transition-all outline-none text-gray-900"
-                    placeholder="123456"
+                    className="w-full text-center text-3xl font-bold tracking-widest py-8 px-6 rounded-3xl border-4 border-gray-200 focus:border-[#1B5FA6] focus:ring-8 focus:ring-[#1B5FA6]/20 bg-gradient-to-r from-blue-50 to-indigo-50 shadow-2xl transition-all outline-none text-black"
+                    placeholder="Enter OTP"
                   />
                   {errors.otp && (
                     <motion.p 

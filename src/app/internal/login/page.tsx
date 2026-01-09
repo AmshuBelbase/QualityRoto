@@ -92,7 +92,7 @@ export default function StaffLogin() {
                     message: 'Invalid email address'
                   }
                 })}
-                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all outline-none text-lg placeholder-gray-500"
+                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all outline-none text-lg placeholder-gray-500 text-black"
                 placeholder="Enter your email address"
               />
               {errors.email && (
@@ -123,7 +123,7 @@ export default function StaffLogin() {
                     message: 'Password must be at least 6 characters'
                   }
                 })}
-                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all outline-none text-lg placeholder-gray-500"
+                className="w-full px-5 py-4 rounded-2xl border-2 border-gray-200 focus:border-[#1B5FA6] focus:ring-4 focus:ring-[#1B5FA6]/10 bg-gray-50/50 transition-all outline-none text-lg placeholder-gray-500 text-black"
                 placeholder="Enter your password"
               />
               {errors.password && (

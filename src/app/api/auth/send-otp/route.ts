@@ -42,7 +42,7 @@ export async function POST(request: NextRequest) {
       subject: 'Quality Roto Packaging - Verify Your Email',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>🔐 Verify Your Staff Account</h2>
+          <h2>🔐 Verify Your Account</h2>
           <div style="background: linear-gradient(135deg, #1B5FA6, #F15A29); color: white; padding: 20px; border-radius: 12px; text-align: center;">
             <h1 style="margin: 0; font-size: 48px;">${otp}</h1>
             <p>Your verification code expires in 10 minutes</p>
