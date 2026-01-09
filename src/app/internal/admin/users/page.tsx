@@ -78,6 +78,9 @@ export default function AdminUsers() {
 
     if (res.status === 401) {
         localStorage.removeItem('token');
+        localStorage.removeItem('rememberMe');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('rememberMe');
         alert('Session expired. Please login again.');
         window.location.href = '/internal/login';
         return;
@@ -115,6 +118,9 @@ export default function AdminUsers() {
 
     if (res.status === 401 || res.status === 403) {
         localStorage.removeItem('token');
+        localStorage.removeItem('rememberMe');
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('rememberMe');
         alert('Session expired or insufficient permissions');
         window.location.href = '/internal/login';
         return;

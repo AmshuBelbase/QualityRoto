@@ -28,7 +28,16 @@ export default function StaffLogin() {
       
       if (result.success) {
         // Store token in localStorage/cookies
-        localStorage.setItem('token', result.token);
+        // localStorage.setItem('token', result.token);
+        if (data.rememberMe) {
+        // Save for 3 days
+          localStorage.setItem('token', result.token);
+          localStorage.setItem('rememberMe', 'true');
+        } else {
+          // Session only - delete on tab close
+          sessionStorage.setItem('token', result.token);
+          sessionStorage.setItem('rememberMe', 'false');
+        }
         alert('Login successful! Redirecting...');
         window.location.href = '/internal/dashboard'; // Create this later
       } else {

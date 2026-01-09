@@ -39,7 +39,7 @@ export default function Dashboard() {
 
   // Get user permissions from token on load
 useEffect(() => {
-  const token = localStorage.getItem('token');
+  let token = sessionStorage.getItem('token') || localStorage.getItem('token');
   if (!token) {
     window.location.href = '/internal/login';
     return;
@@ -68,13 +68,25 @@ useEffect(() => {
   .catch((error) => {
     console.error('Profile fetch error:', error);
     localStorage.removeItem('token');
+    localStorage.removeItem('rememberMe');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('rememberMe');
     window.location.href = '/internal/login';
   })
   .finally(() => setLoading(false));
 }, []);
 
   const handleLogout = () => {
-    localStorage.removeItem('token');
+    // Clear ALL storage
+    let local_level = sessionStorage.getItem('rememberMe') || localStorage.getItem('rememberMe');
+    // alert(token_level);
+    if(local_level === 'true'){
+      localStorage.removeItem('token');
+      localStorage.removeItem('rememberMe');
+    } else {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('rememberMe');
+    }
     window.location.href = '/internal/login';
   };
 

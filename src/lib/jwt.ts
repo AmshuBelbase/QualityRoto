@@ -15,5 +15,6 @@ export function verifyToken(token: string) {
 
 export function getToken() {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
+  let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+  return token;
 }
