@@ -23,8 +23,7 @@ export default function SBSection({ permission }: { permission: Permission }) {
   const [filter, setFilter] = useState<'pending' | 'done' | 'failed' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
 
-    // ✅ NEW: Complaint state
-  const [showComplaintForm, setShowComplaintForm] = useState<string | null>(null); // orderId
+  const [showComplaintForm, setShowComplaintForm] = useState<string | null>(null);
   const [complaintDescription, setComplaintDescription] = useState('');
   const [submittingComplaint, setSubmittingComplaint] = useState(false);
 
@@ -68,7 +67,6 @@ export default function SBSection({ permission }: { permission: Permission }) {
     fetchOrders();
   };
 
-  // ✅ NEW: Raise Complaint
   const handleRaiseComplaint = async (orderId: string) => {
     if (!complaintDescription.trim()) {
       alert('Please enter complaint description');
@@ -113,60 +111,69 @@ export default function SBSection({ permission }: { permission: Permission }) {
     return order.status.includes('SB_') || order.status.includes('SC_') || order.status.includes('PACKAGING') || order.status.includes('DISPATCH');
   });
 
-  if (loading) return <div className="text-center py-12">Loading Section B orders...</div>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 md:py-32 px-4">
+        <div className="text-center">
+          <div className="text-4xl md:text-6xl mb-4">⏳</div>
+          <p className="text-base md:text-xl text-gray-600 font-medium">Loading Section B orders...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex justify-between items-center">
+    <div className="space-y-4 md:space-y-6">
+      {/* Header - Mobile Responsive */}
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h2 className="text-3xl font-bold text-gray-900">🔧 Section B Processing</h2>
-          <p className="text-gray-600 mt-2">Process orders from Section A</p>
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-900">🔧 Section B Processing</h2>
+          <p className="text-sm md:text-base text-gray-600 mt-1 md:mt-2">Process orders from Section A</p>
         </div>
-        <div className={`px-6 py-3 rounded-2xl font-bold text-lg ${
+        {/* <div className={`px-4 md:px-6 py-2 md:py-3 rounded-xl md:rounded-2xl font-bold text-sm md:text-lg text-center ${
           permission === 'read_write' 
             ? 'bg-green-100 text-green-800 border-2 border-green-300' 
             : 'bg-blue-100 text-blue-800 border-2 border-blue-300'
         }`}>
           {permission.replace('_', ' ').toUpperCase()}
-        </div>
+        </div> */}
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-green-500">
-          <div className="text-3xl font-bold text-green-600">
+      {/* Stats - Responsive Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-green-500">
+          <div className="text-2xl md:text-3xl font-bold text-green-600">
             {orders.filter(o => o.status === 'SB_PENDING').length}
           </div>
-          <div className="text-gray-600 font-medium">Pending</div>
+          <div className="text-xs md:text-base text-gray-600 font-medium">Pending</div>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-emerald-500">
-          <div className="text-3xl font-bold text-emerald-600">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-emerald-500">
+          <div className="text-2xl md:text-3xl font-bold text-emerald-600">
             {orders.filter(o => o.status === 'SB_DONE' || o.status.includes('SC_') || o.status.includes('PACKAGING') || o.status.includes('DISPATCH')).length}
           </div>
-          <div className="text-gray-600 font-medium">Completed</div>
+          <div className="text-xs md:text-base text-gray-600 font-medium">Completed</div>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-red-500">
-          <div className="text-3xl font-bold text-red-600">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-red-500">
+          <div className="text-2xl md:text-3xl font-bold text-red-600">
             {orders.filter(o => o.status === 'SB_FAILED').length}
           </div>
-          <div className="text-gray-600 font-medium">Failed</div>
+          <div className="text-xs md:text-base text-gray-600 font-medium">Failed</div>
         </div>
-        <div className="bg-white rounded-2xl p-6 shadow-lg border-l-4 border-blue-500">
-          <div className="text-3xl font-bold text-blue-600">
+        <div className="bg-white rounded-xl md:rounded-2xl p-4 md:p-6 shadow-lg border-l-4 border-blue-500 col-span-1 lg:col-span-1">
+          <div className="text-2xl md:text-3xl font-bold text-blue-600">
             {orders.filter(o => o.status.includes('SB_') || o.status.includes('SC_') || o.status.includes('PACKAGING') || o.status.includes('DISPATCH')).length}
           </div>
-          <div className="text-gray-600 font-medium">Total SB Orders</div>
+          <div className="text-xs md:text-base text-gray-600 font-medium">Total Orders</div>
         </div>
       </div>
 
-      {/* Filters */}
-      <div className="flex gap-4">
+      {/* Filters - Mobile Responsive */}
+      <div className="flex flex-row sm:flex-row gap-2 md:gap-4">
         {['pending', 'done', 'failed', 'all'].map(f => (
           <button
             key={f}
             onClick={() => setFilter(f as any)}
-            className={`px-6 py-3 rounded-xl font-semibold transition-all ${
+            className={`px-4 md:px-6 py-2.5 md:py-3 rounded-lg md:rounded-xl font-semibold text-sm md:text-base transition-all ${
               filter === f 
                 ? 'bg-gradient-to-r from-green-500 to-green-600 text-white shadow-lg' 
                 : 'bg-white text-gray-700 border-2 border-gray-200 hover:bg-gray-50'
@@ -177,102 +184,100 @@ export default function SBSection({ permission }: { permission: Permission }) {
         ))}
       </div>
 
-      {/* Orders List */}
-      <div className="grid gap-6">
+      {/* Orders List - Mobile Responsive */}
+      <div className="grid gap-4 md:gap-6">
         {filteredOrders.map(order => (
           <motion.div
             key={order._id}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className={`bg-white rounded-2xl shadow-xl p-6 border-2 ${
+            className={`bg-white rounded-xl md:rounded-2xl shadow-xl p-4 md:p-6 border-2 ${
               order.status === 'SB_PENDING' ? 'border-green-300 bg-green-50/30' :
               order.status === 'SB_FAILED' ? 'border-red-300 bg-red-50/30' :
               'border-emerald-300 bg-emerald-50/30'
             }`}
           >
-            {/* ✅ NEW: Order ID Badge at Top */}
-            <div className="flex justify-between items-start mb-4">
-              <div className="flex items-center gap-3">
-                <div className="bg-gray-100 px-4 py-2 rounded-lg border-2 border-gray-300">
-                  <div className="text-xs text-gray-500 font-medium">Order ID</div>
-                  <div className="font-mono font-bold text-gray-900">#{order._id.slice(-8).toUpperCase()}</div>
+            {/* Header with Order ID - Compact Single Line */}
+            <div className="flex items-start justify-between gap-2 mb-3 md:mb-4 overflow-x-auto pb-1">
+              <div className="flex items-center gap-2 flex-shrink-0 min-w-0">
+                <div className="bg-gray-100 px-2 md:px-4 py-1.5 md:py-2 rounded-lg border-2 border-gray-300 flex-shrink-0">
+                  <div className="text-[10px] md:text-xs text-gray-500 font-medium">Order ID</div>
+                  <div className="font-mono font-bold text-xs md:text-base text-gray-900 whitespace-nowrap">
+                    #{order._id.slice(-8).toUpperCase()}
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-xl font-bold text-gray-900">{order.customerName}</h3>
-                  <p className="text-gray-600">📞 {order.customerPhone}</p>
+                <div className="min-w-0">
+                  <h3 className="text-sm md:text-xl font-bold text-gray-900 truncate">
+                    {order.customerName}
+                  </h3>
+                  <p className="text-xs md:text-base text-gray-600 truncate">
+                    📞 {order.customerPhone}
+                  </p>
                 </div>
               </div>
               
-              <div className="flex gap-3 justify-between items-start mb-4">
+              <div className="flex flex-col sm:flex-row gap-2 flex-shrink-0">
+                <span className={`px-2 md:px-4 py-1 md:py-2 rounded-lg md:rounded-xl font-bold text-[10px] md:text-sm whitespace-nowrap ${
+                  order.status === 'SB_PENDING' ? 'bg-green-500 text-white' :
+                  order.status === 'SB_FAILED' ? 'bg-red-500 text-white' :
+                  'bg-emerald-500 text-white'
+                }`}>
+                  {order.status.replace(/_/g, ' ')}
+                </span>
 
-              <span className={`px-4 py-2 rounded-xl font-bold text-sm ${
-                order.status === 'SB_PENDING' ? 'bg-green-500 text-white' :
-                order.status === 'SB_FAILED' ? 'bg-red-500 text-white' :
-                'bg-emerald-500 text-white'
-              }`}>
-                {order.status.replace(/_/g, ' ')}
-              </span>
-
-              {/* ✅ NEW: Raise Complaint Button (Always Visible) */}
+                {/* Raise Complaint Button */}
                 {permission !== 'read_only' && showComplaintForm !== order._id && (
-                <button
+                  <button
                     onClick={() => setShowComplaintForm(order._id)}
-                    className="px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-xl border-2 border-yellow-300 transition-all font-bold text-sm"
-                >
+                    className="px-2 md:px-4 py-1 md:py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-lg md:rounded-xl border-2 border-yellow-300 transition-all font-bold text-[10px] md:text-sm whitespace-nowrap"
+                  >
                     ⚠️ Raise Complaint
-                </button>
+                  </button>
                 )}
-                </div>
+              </div>
             </div>
 
-            {/* <div className="mb-4">
-              <p className="text-sm text-gray-500">Ordered by: {order.createdBy.fullName}</p>
-              {order.saProcessedBy && (
-                <p className="text-sm text-green-600 font-medium mt-1">
-                  ✅ Processed by: {order.saProcessedBy.fullName}
-                </p>
-              )}
-            </div> */}
-
-            {/* Items */}
-            <div className="space-y-2 mb-4">
-              <h4 className="font-semibold text-gray-700">Order Items:</h4>
+            {/* Items - Mobile Responsive */}
+            <div className="space-y-2 mb-3 md:mb-4">
+              <h4 className="font-semibold text-sm md:text-base text-gray-700">Order Items:</h4>
               {order.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between bg-white rounded-lg p-3 border border-gray-200">
-                  <div>
-                    <span className="font-semibold text-green-600">Type {item.itemType}</span>
-                    <p className="text-gray-600 text-sm">{item.description}</p>
+                <div key={idx} className="flex flex-col sm:flex-row sm:justify-between gap-2 bg-white rounded-lg p-3 border border-gray-200">
+                  <div className="flex-1">
+                    <span className="font-semibold text-sm md:text-base text-green-600">Type {item.itemType}</span>
+                    <p className="text-gray-600 text-xs md:text-sm break-words">{item.description}</p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-gray-700">Qty: <span className="font-bold">{item.quantity}</span></div>
-                    <div className="font-bold text-[#F15A29]">₹{item.price}</div>
+                  <div className="flex sm:flex-col justify-between sm:text-right gap-2">
+                    <div className="text-xs md:text-base text-gray-700">Qty: <span className="font-bold">{item.quantity}</span></div>
+                    <div className="font-bold text-sm md:text-base text-[#F15A29]">₹{item.price}</div>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* ✅ NEW: Complaint Form */}
+            {/* Complaint Form - Mobile Responsive */}
             <AnimatePresence>
               {showComplaintForm === order._id && (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
-                  className="mb-4 bg-red-50 rounded-xl p-4 border-2 border-red-200"
+                  className="mb-3 md:mb-4 bg-red-50 rounded-lg md:rounded-xl p-3 md:p-4 border-2 border-red-200"
                 >
-                  <h4 className="font-bold text-gray-900 mb-2">⚠️ Raise Complaint for Order #{order._id.slice(-8).toUpperCase()}</h4>
+                  <h4 className="font-bold text-sm md:text-base text-gray-900 mb-2">
+                    ⚠️ Raise Complaint for Order #{order._id.slice(-8).toUpperCase()}
+                  </h4>
                   <textarea
                     value={complaintDescription}
                     onChange={(e) => setComplaintDescription(e.target.value)}
                     rows={3}
-                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-red-500 text-black mb-3"
+                    className="w-full px-3 md:px-4 py-2 md:py-3 rounded-lg border-2 border-gray-200 focus:border-red-500 text-black text-sm md:text-base mb-3"
                     placeholder="Describe the issue with this order..."
                   />
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:flex-row gap-2">
                     <button
                       onClick={() => handleRaiseComplaint(order._id)}
                       disabled={submittingComplaint}
-                      className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 disabled:opacity-50"
+                      className="flex-1 px-4 py-2.5 bg-red-500 text-white rounded-lg font-bold text-sm md:text-base hover:bg-red-600 disabled:opacity-50"
                     >
                       {submittingComplaint ? 'Submitting...' : 'Submit Complaint'}
                     </button>
@@ -281,7 +286,7 @@ export default function SBSection({ permission }: { permission: Permission }) {
                         setShowComplaintForm(null);
                         setComplaintDescription('');
                       }}
-                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300"
+                      className="px-4 py-2.5 bg-gray-200 text-gray-700 rounded-lg font-bold text-sm md:text-base hover:bg-gray-300"
                     >
                       Cancel
                     </button>
@@ -290,18 +295,18 @@ export default function SBSection({ permission }: { permission: Permission }) {
               )}
             </AnimatePresence>
 
-            {/* Actions */}
+            {/* Actions - Mobile Responsive */}
             {permission === 'read_write' && order.status === 'SB_PENDING' && (
-              <div className="flex gap-3 pt-4 border-t border-gray-200">
+              <div className="flex flex-col sm:flex-row gap-2 md:gap-3 pt-3 md:pt-4 border-t border-gray-200">
                 <button
                   onClick={() => handleMarkDone(order._id)}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-lg transition-all"
+                  className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-emerald-500 to-emerald-600 text-white rounded-lg md:rounded-xl font-bold text-sm md:text-base hover:shadow-lg transition-all"
                 >
                   ✅ Mark as Done
                 </button>
                 <button
                   onClick={() => handleMarkFailed(order._id)}
-                  className="flex-1 px-6 py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-xl font-bold hover:shadow-lg transition-all"
+                  className="flex-1 px-4 md:px-6 py-2.5 md:py-3 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-lg md:rounded-xl font-bold text-sm md:text-base hover:shadow-lg transition-all"
                 >
                   ❌ Mark as Failed
                 </button>
@@ -309,7 +314,7 @@ export default function SBSection({ permission }: { permission: Permission }) {
             )}
 
             {permission === 'read_only' && (
-              <div className="mt-4 text-center text-sm text-gray-500 font-medium">
+              <div className="mt-3 md:mt-4 text-center text-xs md:text-sm text-gray-500 font-medium bg-gray-50 py-2.5 md:py-3 rounded-lg md:rounded-xl">
                 🔒 Read-only access - Actions disabled
               </div>
             )}
@@ -317,9 +322,11 @@ export default function SBSection({ permission }: { permission: Permission }) {
         ))}
 
         {filteredOrders.length === 0 && (
-          <div className="text-center py-16 bg-white rounded-2xl shadow-lg">
-            <div className="text-6xl mb-4">📭</div>
-            <p className="text-xl text-gray-600 font-medium">No {filter} orders in Section B</p>
+          <div className="text-center py-12 md:py-16 bg-white rounded-xl md:rounded-2xl shadow-lg px-4">
+            <div className="text-4xl md:text-6xl mb-4">📭</div>
+            <p className="text-lg md:text-xl text-gray-600 font-medium">
+              No {filter} orders in Section B
+            </p>
           </div>
         )}
       </div>
