@@ -21,6 +21,15 @@ type UserProfile = {
   permissions: Permissions;
 };
 
+// Types
+type ItemType = 'A' | 'B' | 'C';
+type OrderItem = {
+  itemType: ItemType;
+  quantity: number;
+  price: number;
+  description: string;
+};
+
 
 const sections = [
   { id: 'newOrders', label: 'New Orders', icon: '📋', color: 'from-[#1B5FA6] to-[#F15A29]' },
