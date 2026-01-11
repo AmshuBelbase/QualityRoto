@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getToken } from '@/lib/jwt';
+import Navbar from '@/components/Navbar';
 
 type Permission = 'read_only' | 'read_write' | 'no_access';
 type Permissions = {
@@ -41,12 +42,25 @@ export default function AdminUsers() {
   const [loading, setLoading] = useState(true);
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [expandedUserId, setExpandedUserId] = useState<string | null>(null); // ✅ NEW: Track expanded cards
+  const [currentUser, setCurrentUser] = useState<{ fullName: string; role: 'admin' | 'staff' } | null>(null);
 
   useEffect(() => {
     const token = getToken();
     if (!token) {
       window.location.href = '/internal/login';
       return;
+    }
+
+    if (token) {
+      try {
+        const decoded = JSON.parse(atob(token.split('.')[1]));
+        setCurrentUser({
+          fullName: decoded.fullName || 'Admin',
+          role: decoded.role === 'admin' ? 'admin' : 'staff'
+        });
+      } catch (error) {
+        console.error('Error decoding token');
+      }
     }
     
     try {
@@ -102,6 +116,18 @@ export default function AdminUsers() {
     setLoading(false);
   };
 
+  const handleLogout = () => {
+    let local_level = sessionStorage.getItem('rememberMe') || localStorage.getItem('rememberMe');
+    if(local_level === 'true'){
+      localStorage.removeItem('token');
+      localStorage.removeItem('rememberMe');
+    } else {
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('rememberMe');
+    }
+    window.location.href = '/internal/login';
+  };
+
   const updatePermissions = async (userId: string, permissions: Permissions) => {
     const token = getToken();
     if (!token) {
@@ -118,6 +144,8 @@ export default function AdminUsers() {
       },
       body: JSON.stringify({ userId, permissions }),
     });
+
+
 
     if (res.status === 401 || res.status === 403) {
       localStorage.removeItem('token');
@@ -147,7 +175,18 @@ export default function AdminUsers() {
   const staffCount = users.filter(u => u.role.toUpperCase() === 'STAFF').length;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 sm:p-4 md:p-8">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+
+      <Navbar 
+        userFullName={currentUser?.fullName}
+        userRole={currentUser?.role}
+        onLogout={handleLogout}
+      />
+
+      <div className="p-3 sm:p-4 md:p-8">
+
+      
+
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -401,6 +440,7 @@ export default function AdminUsers() {
           ))}
         </div>
       </motion.div>
+    </div>
     </div>
   );
 }
