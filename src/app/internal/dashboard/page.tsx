@@ -3,9 +3,18 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import NewOrdersSection from '@/components/sections/NewOrdersSection';
+import SASection from '@/components/sections/SASection';
+import SBSection from '@/components/sections/SBSection';
+import SCSection from '@/components/sections/SCSection';
+import PackagingSection from '@/components/sections/PackagingSection';
+import DispatchedSection from '@/components/sections/DispatchedSection';
+import ComplaintsSection from '@/components/sections/ComplaintsSection';
+import CreateOrderSection from '@/components/sections/CreateOrderSection';
 
 type Permission = 'read_only' | 'read_write' | 'no_access';
 type Permissions = {
+  createOrder: Permission;
   newOrders: Permission;
   sa: Permission;
   sb: Permission;
@@ -21,17 +30,8 @@ type UserProfile = {
   permissions: Permissions;
 };
 
-// Types
-type ItemType = 'A' | 'B' | 'C';
-type OrderItem = {
-  itemType: ItemType;
-  quantity: number;
-  price: number;
-  description: string;
-};
-
-
 const sections = [
+  { id: 'createOrder', label: 'Create Order', icon: '➕', color: 'from-teal-500 to-teal-600' },
   { id: 'newOrders', label: 'New Orders', icon: '📋', color: 'from-[#1B5FA6] to-[#F15A29]' },
   { id: 'sa', label: 'Section A', icon: '⚙️', color: 'from-orange-500 to-orange-600' },
   { id: 'sb', label: 'Section B', icon: '🔧', color: 'from-green-500 to-green-600' },
@@ -46,49 +46,43 @@ export default function Dashboard() {
   const [activeSection, setActiveSection] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Get user permissions from token on load
-useEffect(() => {
-  let token = sessionStorage.getItem('token') || localStorage.getItem('token');
-  if (!token) {
-    window.location.href = '/internal/login';
-    return;
-  }
+  useEffect(() => {
+    let token = sessionStorage.getItem('token') || localStorage.getItem('token');
+    if (!token) {
+      window.location.href = '/internal/login';
+      return;
+    }
 
-  // Fetch real user profile
-  fetch('/api/auth/profile', {
-    headers: { 
-      'Authorization': `Bearer ${token}`,
-      'Content-Type': 'application/json'
-    }
-  })
-  .then(res => res.json())
-  .then(data => {
-    console.log('Profile data:', data); // DEBUG
-    if (data.fullName) {
-      setUser({
-        fullName: data.fullName,
-        role: data.role === 'admin' ? 'admin' : 'staff',
-        permissions: data.permissions
-      });
-    } else {
-      throw new Error('No user data');
-    }
-  })
-  .catch((error) => {
-    console.error('Profile fetch error:', error);
-    localStorage.removeItem('token');
-    localStorage.removeItem('rememberMe');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('rememberMe');
-    window.location.href = '/internal/login';
-  })
-  .finally(() => setLoading(false));
-}, []);
+    fetch('/api/auth/profile', {
+      headers: { 
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.fullName) {
+        setUser({
+          fullName: data.fullName,
+          role: data.role === 'admin' ? 'admin' : 'staff',
+          permissions: data.permissions
+        });
+      } else {
+        throw new Error('No user data');
+      }
+    })
+    .catch(() => {
+      localStorage.removeItem('token');
+      localStorage.removeItem('rememberMe');
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('rememberMe');
+      window.location.href = '/internal/login';
+    })
+    .finally(() => setLoading(false));
+  }, []);
 
   const handleLogout = () => {
-    // Clear ALL storage
     let local_level = sessionStorage.getItem('rememberMe') || localStorage.getItem('rememberMe');
-    // alert(token_level);
     if(local_level === 'true'){
       localStorage.removeItem('token');
       localStorage.removeItem('rememberMe');
@@ -99,28 +93,36 @@ useEffect(() => {
     window.location.href = '/internal/login';
   };
 
-  // Filter accessible sections (no_access excluded)
   const accessibleSections = sections.filter(section => 
     user?.permissions[section.id as keyof Permissions] !== 'no_access'
   );
 
-  const SectionContent = ({ sectionId }: { sectionId: string }) => {
-    const section = sections.find(s => s.id === sectionId);
-    return (
-      <div className="h-96 bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-12 flex items-center justify-center text-center">
-        <div>
-          <div className="text-8xl mb-8">{section?.icon}</div>
-          <h2 className="text-4xl font-bold text-gray-900 mb-4">{section?.label}</h2>
-          <p className="text-xl text-gray-600 max-w-md mx-auto">
-            {section?.label} Content Area
-            <br />
-            <span className="font-semibold text-[#1B5FA6] mt-4 block">
-              Permission: {user?.permissions[sectionId as keyof Permissions]?.replace('_', ' ').toUpperCase()}
-            </span>
-          </p>
-        </div>
-      </div>
-    );
+  // Render section based on activeSection
+  const renderSectionContent = () => {
+    if (!activeSection || !user) return null;
+
+    const permission = user.permissions[activeSection as keyof Permissions];
+
+    switch (activeSection) {
+      case 'createOrder':
+      return <CreateOrderSection permission={permission} />;
+      case 'newOrders':
+        return <NewOrdersSection permission={permission} />;
+      case 'sa':
+        return <SASection permission={permission} />;
+      case 'sb':
+        return <SBSection permission={permission} />;
+      case 'sc':
+        return <SCSection permission={permission} />;
+      case 'packaging':
+        return <PackagingSection permission={permission} />;
+      case 'dispatched':
+        return <DispatchedSection permission={permission} />;
+      case 'complaints':
+        return <ComplaintsSection permission={permission} />;
+      default:
+        return null;
+    }
   };
 
   if (loading) {
@@ -133,69 +135,73 @@ useEffect(() => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-blue-50">
-      {/* NAVBAR */}
+      {/* NAVBAR - Same as before */}
       <nav className="bg-white/90 backdrop-blur-xl shadow-lg border-b border-orange-100 sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-4 lg:px-8">
           <div className="flex justify-between items-center h-20">
-            {/* Logo */}
-            <div className="flex items-center space-x-3"> 
-                <motion.div
-                whileHover={{ scale: 1.05 }}
-                className="flex items-center"
-                >
+            <div className="flex items-center space-x-3">
+              <motion.div whileHover={{ scale: 1.05 }} className="flex items-center">
                 <Image 
-                    src="/logo.png" 
-                    alt="Quality Roto Packaging" 
-                    width={180} 
-                    height={60}
-                    className={`h-15 w-auto transition-all duration-300`}
-                    priority
+                  src="/logo.png" 
+                  alt="Quality Roto Packaging" 
+                  width={180} 
+                  height={60}
+                  className="h-15 w-auto transition-all duration-300"
+                  priority
                 />
-                </motion.div>
+              </motion.div>
               <span className="text-2xl font-bold bg-gradient-to-r from-[#1B5FA6] to-[#F15A29] bg-clip-text text-transparent">
                 Staff Portal
               </span>
             </div>
 
             <div className="flex items-center space-x-3">
-            {/* User Profile - Single Line */}
-            <div className="flex items-center space-x-2">
-                <div className={`w-10 h-10 ${user?.role === 'admin' ? 'bg-purple-500' : 'bg-green-500'} rounded-full flex items-center justify-center shadow-md flex-shrink-0`}>
-                <span className="font-bold text-white text-sm">
+              {/* Admin Panel Button */}
+              {user?.role === 'admin' && (
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => window.location.href = '/internal/admin/users'}
+                  className="px-4 py-1.5 bg-gradient-to-r from-purple-500 to-purple-600 text-white font-semibold text-sm rounded-xl shadow-lg hover:shadow-xl whitespace-nowrap flex items-center gap-2"
+                >
+                  👑 Admin Panel
+                </motion.button>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <div className={`w-10 h-10 ${user?.role === 'admin' ? 'bg-purple-500' : 'bg-green-500'} rounded-full flex items-center justify-center shadow-md`}>
+                  <span className="font-bold text-white text-sm">
                     {user?.fullName?.charAt(0).toUpperCase() || 'S'}
-                </span>
+                  </span>
                 </div>
                 <div className="min-w-0 flex-1">
-                <div className="font-semibold text-sm text-gray-900 truncate">
+                  <div className="font-semibold text-sm text-gray-900 truncate">
                     {user?.fullName || 'Loading...'}
-                </div>
+                  </div>
                 </div>
                 <div className={`text-xs font-semibold px-2 py-0.5 rounded-full ${
-                user?.role === 'admin' 
+                  user?.role === 'admin' 
                     ? 'bg-purple-100 text-purple-800' 
                     : 'bg-green-100 text-green-800'
                 }`}>
-                {user?.role ? user.role.toUpperCase() : 'LOADING'}
+                  {user?.role ? user.role.toUpperCase() : 'LOADING'}
                 </div>
-            </div>
+              </div>
 
-            {/* Logout */}
-            <motion.button
+              <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={handleLogout}
-                className="px-4 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm rounded-xl shadow-lg hover:shadow-xl whitespace-nowrap flex-shrink-0"
-            >
+                className="px-4 py-1.5 bg-gradient-to-r from-red-500 to-red-600 text-white font-semibold text-sm rounded-xl shadow-lg hover:shadow-xl whitespace-nowrap"
+              >
                 Logout
-            </motion.button>
+              </motion.button>
             </div>
-
           </div>
         </div>
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 lg:px-8 py-12">
-        {/* Navbar Sections */}
         {accessibleSections.length === 0 ? (
           <motion.div 
             initial={{ opacity: 0, scale: 0.9 }}
@@ -210,11 +216,11 @@ useEffect(() => {
           </motion.div>
         ) : (
           <>
-            {/* Horizontal Navbar */}
+            {/* Section Navigation */}
             <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-4 mb-12 border border-white/50">
               <div className="flex overflow-x-auto gap-4 pb-4 -mb-4">
                 {accessibleSections.map((section) => {
-                  const permission = user!.permissions[section.id as keyof Permissions];
+                  const permission = user!.permissions[section.id as keyof Permissions]  || 'no_access';
                   return (
                     <motion.button
                       key={section.id}
@@ -249,7 +255,7 @@ useEffect(() => {
               transition={{ duration: 0.3 }}
             >
               {activeSection ? (
-                <SectionContent sectionId={activeSection} />
+                renderSectionContent()
               ) : (
                 <div className="text-center py-32">
                   <div className="text-6xl mb-8">🚀</div>

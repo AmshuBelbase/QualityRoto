@@ -51,6 +51,7 @@ export async function POST(request: NextRequest) {
       // ✅ ADMIN: Full read_write for YOUR sections
       pendingUser.role = 'admin';
       pendingUser.permissions = {
+        createOrder: 'read_write',
         newOrders: 'read_write',
         sa: 'read_write',
         sb: 'read_write',
@@ -63,6 +64,7 @@ export async function POST(request: NextRequest) {
       // ✅ STAFF: Limited read_only for YOUR sections
       pendingUser.role = 'staff';
       pendingUser.permissions = {
+        createOrder: 'no_access',
         newOrders: 'no_access',
         sa: 'no_access',
         sb: 'no_access',

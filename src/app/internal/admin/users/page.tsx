@@ -5,6 +5,7 @@ import { getToken } from '@/lib/jwt';
 
 type Permission = 'read_only' | 'read_write' | 'no_access';
 type Permissions = {
+  createOrder: Permission;
   newOrders: Permission;
   sa: Permission;
   sb: Permission;
@@ -174,6 +175,7 @@ export default function AdminUsers() {
               <thead className="bg-gradient-to-r from-[#1B5FA6] to-[#F15A29] text-white">
                 <tr>
                   <th className="p-6 text-left font-bold text-lg">Staff Info</th>
+                  <th className="p-6 text-center font-bold text-lg">Create Order</th>
                   <th className="p-6 text-center font-bold text-lg">New Orders</th>
                   <th className="p-6 text-center font-bold text-lg">SA</th>
                   <th className="p-6 text-center font-bold text-lg">SB</th>
@@ -207,7 +209,7 @@ export default function AdminUsers() {
                       </div>
                     </td>
                     
-                    {(['newOrders', 'sa', 'sb', 'sc', 'packaging', 'dispatched', 'complaints'] as const).map((section) => (
+                    {(['createOrder', 'newOrders', 'sa', 'sb', 'sc', 'packaging', 'dispatched', 'complaints'] as const).map((section) => (
                         <td key={section} className="p-6 text-center">
                             {editingUser?._id === user._id ? (
                             <select

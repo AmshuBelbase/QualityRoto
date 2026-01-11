@@ -13,9 +13,18 @@ export async function GET(request: NextRequest) {
   if (!decoded) return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
 
   await connectDB();
+  
+  // ✅ FIX: Populate all user references
   const orders = await Order.find()
     .populate('createdBy', 'fullName email')
-    .sort({ createdAt: -1 });
+    .populate('reviewedBy', 'fullName email')
+    .populate('saProcessedBy', 'fullName email')
+    .populate('sbProcessedBy', 'fullName email')
+    .populate('scProcessedBy', 'fullName email')
+    .populate('packagedBy', 'fullName email')
+    .populate('dispatchedBy', 'fullName email')
+    .sort({ createdAt: -1 })
+    .lean();
   
   return NextResponse.json(orders);
 }
@@ -34,9 +43,12 @@ export async function POST(request: NextRequest) {
 
   const order = await Order.create({
     ...body,
-    createdBy: decoded.id,
+    createdBy: decoded.id, // ✅ Ensure this is set
     status: 'NEW'
   });
+
+  // ✅ Populate before returning
+  await order.populate('createdBy', 'fullName email');
 
   return NextResponse.json({ success: true, order });
 }
@@ -76,6 +88,14 @@ export async function PUT(request: NextRequest) {
     updateFields.dispatchedAt = new Date();
   }
 
-  const order = await Order.findByIdAndUpdate(orderId, updateFields, { new: true });
+  const order = await Order.findByIdAndUpdate(orderId, updateFields, { new: true })
+    .populate('createdBy', 'fullName email')
+    .populate('reviewedBy', 'fullName email')
+    .populate('saProcessedBy', 'fullName email')
+    .populate('sbProcessedBy', 'fullName email')
+    .populate('scProcessedBy', 'fullName email')
+    .populate('packagedBy', 'fullName email')
+    .populate('dispatchedBy', 'fullName email');
+    
   return NextResponse.json({ success: true, order });
 }

@@ -10,6 +10,7 @@ export interface IUser extends Document {
   role: 'admin' | 'staff';
   isActive: boolean;
   permissions: {
+    createOrder: 'read_only' | 'read_write' | 'no_access';
     newOrders: 'read_only' | 'read_write' | 'no_access';
     sa: 'read_only' | 'read_write' | 'no_access';
     sb: 'read_only' | 'read_write' | 'no_access';
@@ -34,6 +35,7 @@ const userSchema: Schema = new mongoose.Schema(
     resetOTP: { type: String, default: undefined },
     resetOTPExpiry: { type: Date, default: undefined },
     permissions: {
+      createOrder: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
       newOrders: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
       sa: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
       sb: { type: String, enum: ['read_only', 'read_write', 'no_access'], default: 'no_access' },
