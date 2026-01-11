@@ -220,7 +220,7 @@ export default function Dashboard() {
             <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-4 mb-12 border border-white/50">
               <div className="flex overflow-x-auto gap-4 pb-4 -mb-4">
                 {accessibleSections.map((section) => {
-                  const permission = user!.permissions[section.id as keyof Permissions]  || 'no_access';
+                  const permission = user!.permissions[section.id as keyof Permissions];
                   return (
                     <motion.button
                       key={section.id}

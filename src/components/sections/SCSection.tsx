@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { getToken } from '@/lib/jwt';
 
 type Permission = 'read_only' | 'read_write' | 'no_access';
@@ -22,6 +22,11 @@ export default function SCSection({ permission }: { permission: Permission }) {
   const [orders, setOrders] = useState<Order[]>([]);
   const [filter, setFilter] = useState<'pending' | 'done' | 'failed' | 'all'>('pending');
   const [loading, setLoading] = useState(true);
+
+    // ✅ NEW: Complaint state
+  const [showComplaintForm, setShowComplaintForm] = useState<string | null>(null); // orderId
+  const [complaintDescription, setComplaintDescription] = useState('');
+  const [submittingComplaint, setSubmittingComplaint] = useState(false);
 
   useEffect(() => {
     fetchOrders();
@@ -61,6 +66,44 @@ export default function SCSection({ permission }: { permission: Permission }) {
       body: JSON.stringify({ orderId, status: 'SC_FAILED', section: 'sc' })
     });
     fetchOrders();
+  };
+
+  // ✅ NEW: Raise Complaint
+  const handleRaiseComplaint = async (orderId: string) => {
+    if (!complaintDescription.trim()) {
+      alert('Please enter complaint description');
+      return;
+    }
+
+    setSubmittingComplaint(true);
+    const token = getToken();
+    
+    try {
+      const res = await fetch('/api/complaints', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          orderId,
+          section: 'sc',
+          description: complaintDescription
+        })
+      });
+
+      if (res.ok) {
+        alert('✅ Complaint raised successfully!');
+        setShowComplaintForm(null);
+        setComplaintDescription('');
+      } else {
+        alert('❌ Failed to raise complaint');
+      }
+    } catch (error) {
+      alert('❌ Network error');
+    } finally {
+      setSubmittingComplaint(false);
+    }
   };
 
   const filteredOrders = orders.filter(order => {
@@ -146,18 +189,21 @@ export default function SCSection({ permission }: { permission: Permission }) {
               order.status === 'SC_FAILED' ? 'border-red-300 bg-red-50/30' :
               'border-cyan-300 bg-cyan-50/30'
             }`}
-          >
+          > 
+
             <div className="flex justify-between items-start mb-4">
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">{order.customerName}</h3>
-                <p className="text-gray-600">📞 {order.customerPhone}</p>
-                <p className="text-sm text-gray-500">Ordered by: {order.createdBy.fullName}</p>
-                {order.scProcessedBy && (
-                  <p className="text-sm text-blue-600 font-medium mt-1">
-                    ✅ Processed by: {order.scProcessedBy.fullName}
-                  </p>
-                )}
+              <div className="flex items-center gap-3">
+                <div className="bg-gray-100 px-4 py-2 rounded-lg border-2 border-gray-300">
+                  <div className="text-xs text-gray-500 font-medium">Order ID</div>
+                  <div className="font-mono font-bold text-gray-900">#{order._id.slice(-8).toUpperCase()}</div>
+                </div>
+                <div>
+                  <h3 className="text-xl font-bold text-gray-900">{order.customerName}</h3>
+                  <p className="text-gray-600">📞 {order.customerPhone}</p>
+                </div>
               </div>
+
+              <div className="flex gap-3 justify-between items-start mb-4">
               <span className={`px-4 py-2 rounded-xl font-bold text-sm ${
                 order.status === 'SC_PENDING' ? 'bg-blue-500 text-white' :
                 order.status === 'SC_FAILED' ? 'bg-red-500 text-white' :
@@ -165,6 +211,16 @@ export default function SCSection({ permission }: { permission: Permission }) {
               }`}>
                 {order.status.replace(/_/g, ' ')}
               </span>
+              {/* ✅ NEW: Raise Complaint Button (Always Visible) */}
+                {permission !== 'read_only' && showComplaintForm !== order._id && (
+                <button
+                    onClick={() => setShowComplaintForm(order._id)}
+                    className="px-4 py-2 bg-yellow-100 hover:bg-yellow-200 text-yellow-800 rounded-xl border-2 border-yellow-300 transition-all font-bold text-sm"
+                >
+                    ⚠️ Raise Complaint
+                </button>
+                )}
+              </div>
             </div>
 
             {/* Items */}
@@ -183,6 +239,45 @@ export default function SCSection({ permission }: { permission: Permission }) {
                 </div>
               ))}
             </div>
+
+            {/* ✅ NEW: Complaint Form */}
+            <AnimatePresence>
+              {showComplaintForm === order._id && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: 'auto' }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className="mb-4 bg-red-50 rounded-xl p-4 border-2 border-red-200"
+                >
+                  <h4 className="font-bold text-gray-900 mb-2">⚠️ Raise Complaint for Order #{order._id.slice(-8).toUpperCase()}</h4>
+                  <textarea
+                    value={complaintDescription}
+                    onChange={(e) => setComplaintDescription(e.target.value)}
+                    rows={3}
+                    className="w-full px-4 py-3 rounded-lg border-2 border-gray-200 focus:border-red-500 text-black mb-3"
+                    placeholder="Describe the issue with this order..."
+                  />
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => handleRaiseComplaint(order._id)}
+                      disabled={submittingComplaint}
+                      className="flex-1 px-4 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-600 disabled:opacity-50"
+                    >
+                      {submittingComplaint ? 'Submitting...' : 'Submit Complaint'}
+                    </button>
+                    <button
+                      onClick={() => {
+                        setShowComplaintForm(null);
+                        setComplaintDescription('');
+                      }}
+                      className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg font-bold hover:bg-gray-300"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Actions */}
             {permission === 'read_write' && order.status === 'SC_PENDING' && (

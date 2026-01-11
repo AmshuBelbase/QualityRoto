@@ -10,14 +10,14 @@ export default function CreateOrderSection({ permission }: { permission: Permiss
   const [newOrder, setNewOrder] = useState({
     customerName: '',
     customerPhone: '',
-    items: [{ itemType: 'A' as 'A' | 'B' | 'C', quantity: 1, price: 0, description: '', photoPath: '' }]
+    items: [{ itemType: 'A' as 'A' | 'B' | 'C', quantity: '', price: '', description: '', photoPath: '' }]
   });
   const [submitting, setSubmitting] = useState(false);
 
   const addItem = () => {
     setNewOrder({
       ...newOrder,
-      items: [...newOrder.items, { itemType: 'A', quantity: 1, price: 0, description: '', photoPath: '' }]
+      items: [...newOrder.items, { itemType: 'A', quantity: '', price: '', description: '', photoPath: '' }]
     });
   };
 
@@ -39,6 +39,16 @@ export default function CreateOrderSection({ permission }: { permission: Permiss
     setSubmitting(true);
     
     const token = getToken();
+
+    // ✅ Convert string values to numbers before sending
+    const orderData = {
+      ...newOrder,
+      items: newOrder.items.map(item => ({
+        ...item,
+        quantity: parseInt(item.quantity as string) || 0,
+        price: parseFloat(item.price as string) || 0
+      }))
+    };
     
     try {
       const res = await fetch('/api/orders', {
@@ -56,7 +66,7 @@ export default function CreateOrderSection({ permission }: { permission: Permiss
         setNewOrder({
           customerName: '',
           customerPhone: '',
-          items: [{ itemType: 'A', quantity: 1, price: 0, description: '', photoPath: '' }]
+          items: [{ itemType: 'A', quantity: '', price: '', description: '', photoPath: '' }]
         });
       } else {
         alert('❌ Failed to create order');
@@ -73,7 +83,7 @@ export default function CreateOrderSection({ permission }: { permission: Permiss
       <div className="text-center py-32 bg-white rounded-3xl shadow-xl">
         <div className="text-6xl mb-6">🔒</div>
         <h2 className="text-3xl font-bold text-gray-800 mb-4">Read-Only Access</h2>
-        <p className="text-lg text-gray-600">You can view this section but cannot create orders.</p>
+        <p className="text-lg text-gray-600">You cannot create orders.</p>
       </div>
     );
   }
